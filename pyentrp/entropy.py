@@ -208,6 +208,19 @@ def multiscale_entropy(time_series, sample_length, tolerance = None, maxscale = 
         mse[i] = sample_entropy(temp, sample_length, tolerance)[-1]
     return mse
 
+def permutation_distribution(time_series, order=3, delay=1):
+    x = np.array(time_series)
+    hashmult = np.power(order, np.arange(order))
+    # Embed x and sort the order of permutations
+    sorted_idx = _embed(x, order=order, delay=delay).argsort(kind='quicksort')
+    # Associate unique integer to each permutations
+    hashval = (np.multiply(sorted_idx, hashmult)).sum(1)
+    # Return the counts
+    _, c = np.unique(hashval, return_counts=True)
+    # Use np.true_divide for Python 2 compatibility
+    p = np.true_divide(c, c.sum())
+    
+    return p
 
 def permutation_entropy(time_series, order=3, delay=1, normalize=False):
     """Permutation Entropy.
@@ -262,16 +275,9 @@ def permutation_entropy(time_series, order=3, delay=1, normalize=False):
         >>> print(permutation_entropy(x, order=3, normalize=True))
             0.589
     """
-    x = np.array(time_series)
-    hashmult = np.power(order, np.arange(order))
-    # Embed x and sort the order of permutations
-    sorted_idx = _embed(x, order=order, delay=delay).argsort(kind='quicksort')
-    # Associate unique integer to each permutations
-    hashval = (np.multiply(sorted_idx, hashmult)).sum(1)
-    # Return the counts
-    _, c = np.unique(hashval, return_counts=True)
-    # Use np.true_divide for Python 2 compatibility
-    p = np.true_divide(c, c.sum())
+    
+    p = permutation_distribution(time_series, order, delay)
+
     pe = -np.multiply(p, np.log2(p)).sum()
     if normalize:
         pe /= np.log2(factorial(order))
