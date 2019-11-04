@@ -209,6 +209,26 @@ def multiscale_entropy(time_series, sample_length, tolerance = None, maxscale = 
     return mse
 
 def permutation_distribution(time_series, order=3, delay=1):
+    """Permutation Distribution (used by Permutation entropy). 
+    
+    This is copied from the original Permuations entropy function
+
+    Parameters
+    ----------
+    time_series : list or np.array
+        Time series
+    order : int
+        Order of permutation entropy
+    delay : int
+        Time delay
+ 
+
+    Returns
+    -------
+    p : array, the probability distributions of permutations
+    
+    """
+
     x = np.array(time_series)
     hashmult = np.power(order, np.arange(order))
     # Embed x and sort the order of permutations
